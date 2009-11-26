@@ -26,16 +26,18 @@ Integrate Java Melody Monitor into grails application.
 
     def doWithSpring = {
         //TODO: monitoring of grails services
-        /*monitoringAdvisor(MonitoringSpringAdvisor){
-            pointcut = {MonitoredWithAnnotationPointcut bean->}
+        /*monitoringAdvisor(MonitoringSpringAdvisor) {
+            pointcut = {MonitoredWithAnnotationPointcut bean ->}
         }
 
         defaultAdvisorAutoProxyCreator(DefaultAdvisorAutoProxyCreator)*/
 
+        'grailsDataSourceBeanPostProcessor'(GrailsDataSourceBeanPostProcessor)
+
     }
 
     def doWithApplicationContext = {applicationContext ->
-        // TODO Implement post initialization spring config (optional)
+
     }
 
     def doWithWebDescriptor = {xml ->
@@ -103,17 +105,17 @@ Integrate Java Melody Monitor into grails application.
         return filters[filters.size() - 1]
     }
 
-    def doWithDynamicMethods = { ctx ->
+    def doWithDynamicMethods = {ctx ->
         // TODO Implement registering dynamic methods to classes (optional)
     }
 
-    def onChange = { event ->
+    def onChange = {event ->
         // TODO Implement code that is executed when any artefact that this plugin is
         // watching is modified and reloaded. The event contains: event.source,
         // event.application, event.manager, event.ctx, and event.plugin.
     }
 
-    def onConfigChange = { event ->
+    def onConfigChange = {event ->
         // TODO Implement code that is executed when the project configuration changes.
         // The event is the same as for 'onChange'.
     }
