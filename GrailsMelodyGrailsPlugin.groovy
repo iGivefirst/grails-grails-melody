@@ -1,5 +1,10 @@
 import net.bull.javamelody.MonitoringFilter
 import net.bull.javamelody.SessionListener
+import net.bull.javamelody.MonitoringInterceptor
+import net.bull.javamelody.Counter
+import net.bull.javamelody.ThreadInformations
+import net.bull.javamelody.Parameter
+import net.bull.javamelody.Parameters
 
 class GrailsMelodyGrailsPlugin {
     // the plugin version
@@ -13,7 +18,6 @@ class GrailsMelodyGrailsPlugin {
             "grails-app/views/error.gsp"
     ]
 
-    // TODO Fill in these fields
     def author = "Liu Chao"
     def authorEmail = "liuchao@goal98.com"
     def title = "Grails Java Melody Plugin"
@@ -24,14 +28,11 @@ Integrate Java Melody Monitor into grails application.
     // URL to the plugin's documentation
     def documentation = "http://grails.org/GrailsMelody+Plugin"
 
+    def SPRING_COUNTER = MonitoringInterceptor.getSpringCounter();
+    final boolean DISABLED = Boolean.parseBoolean(Parameters.getParameter(Parameter.DISABLED));
+
     def doWithSpring = {
-        //TODO: monitoring of grails services
-        /*monitoringAdvisor(MonitoringSpringAdvisor) {
-            pointcut = {MonitoredWithAnnotationPointcut bean ->}
-        }
-
-        defaultAdvisorAutoProxyCreator(DefaultAdvisorAutoProxyCreator)*/
-
+        //Wrap grails datasource with java melody JdbcWapper
         'grailsDataSourceBeanPostProcessor'(GrailsDataSourceBeanPostProcessor)
 
     }
@@ -106,7 +107,48 @@ Integrate Java Melody Monitor into grails application.
     }
 
     def doWithDynamicMethods = {ctx ->
-        // TODO Implement registering dynamic methods to classes (optional)
+        //Enable groovy meta programming
+        ExpandoMetaClass.enableGlobally()
+        //For each service class in Grails, the plugin use groovy meta programming (invokeMethod)
+        //to 'intercept' method call and collect infomation for monitoring purpose.
+        //The code below mimics 'MonitoringSpringInterceptor.invoke()'
+        //TODO: Refactor the following codes to remove code duplication.
+        application.serviceClasses.each {serviceArtifactClass ->
+            def serviceClass = serviceArtifactClass.getClazz()
+            serviceClass.metaClass.invokeMethod = {String name, args ->
+
+                def metaMethod = delegate.metaClass.getMetaMethod(name, args)
+
+                if (metaMethod) {
+
+                    if (DISABLED || !SPRING_COUNTER.isDisplayed()) {
+                        return metaMethod.doMethodInvoke(delegate, args)
+                    }
+
+                    final long start = System.currentTimeMillis();
+                    final long startCpuTime = ThreadInformations.getCurrentThreadCpuTime();
+                    final String requestName = "${serviceClass.name}.${name}";
+
+                    boolean systemError = false;
+                    try {
+                        SPRING_COUNTER.bindContext(requestName, requestName, null, startCpuTime);
+                        return metaMethod.doMethodInvoke(delegate, args)
+                    } catch (final Error e) {
+                        systemError = true;
+                        throw e;
+                    } finally {
+                        final long duration = Math.max(System.currentTimeMillis() - start, 0);
+                        final long cpuUsedMillis = (ThreadInformations.getCurrentThreadCpuTime() - startCpuTime) / 1000000;
+
+                        SPRING_COUNTER.addRequest(requestName, duration, cpuUsedMillis, systemError, -1);
+                    }
+
+                } else {
+                    throw new MissingMethodException(name, delegate.class, args)
+                }
+
+            }
+        }
     }
 
     def onChange = {event ->
