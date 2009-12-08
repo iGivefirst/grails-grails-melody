@@ -1,10 +1,9 @@
 import net.bull.javamelody.MonitoringFilter
 import net.bull.javamelody.SessionListener
-import net.bull.javamelody.MonitoringInterceptor
-import net.bull.javamelody.Counter
 import net.bull.javamelody.ThreadInformations
 import net.bull.javamelody.Parameter
 import net.bull.javamelody.Parameters
+import net.bull.javamelody.MonitoringProxy
 
 class GrailsMelodyGrailsPlugin {
     // the plugin version
@@ -28,7 +27,7 @@ Integrate Java Melody Monitor into grails application.
     // URL to the plugin's documentation
     def documentation = "http://grails.org/GrailsMelody+Plugin"
 
-    def SPRING_COUNTER = MonitoringInterceptor.getSpringCounter();
+    def SPRING_COUNTER = MonitoringProxy.getSpringCounter();
     final boolean DISABLED = Boolean.parseBoolean(Parameters.getParameter(Parameter.DISABLED));
 
     def doWithSpring = {
