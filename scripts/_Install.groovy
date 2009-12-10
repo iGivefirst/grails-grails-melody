@@ -8,3 +8,5 @@
 //
 //    ant.mkdir(dir:"${basedir}/grails-app/jobs")
 //
+Ant.copy(file: "${pluginBasedir}/src/samples/GrailsMelodyConfig.groovy",
+        todir: "${basedir}/grails-app/conf")

@@ -27,8 +27,6 @@ Integrate Java Melody Monitor into grails application.
     // URL to the plugin's documentation
     def documentation = "http://grails.org/GrailsMelody+Plugin"
 
-    def SPRING_COUNTER = MonitoringProxy.getSpringCounter();
-    final boolean DISABLED = Boolean.parseBoolean(Parameters.getParameter(Parameter.DISABLED));
 
     def doWithSpring = {
         //Wrap grails datasource with java melody JdbcWapper
@@ -48,6 +46,18 @@ Integrate Java Melody Monitor into grails application.
             'filter' {
                 'filter-name'('monitoring')
                 'filter-class'(MonitoringFilter.name)
+                //load configuration from GrailsMelodyConfig.groovy
+                def conf = GrailsMelodyUtil.grailsMelodyConfig?.javamelody
+                conf?.each {
+                    String name = "javamelody.${it.key}"
+                    String value = it.value
+                    println "Grails Melody Param: $name = $value"
+//                    System.setProperty(name, value)
+                    'initParam' {
+                        'param-name'(name)
+                        'param-value'(value)
+                    }
+                }
             }
         }
 
@@ -115,6 +125,9 @@ Integrate Java Melody Monitor into grails application.
         application.serviceClasses.each {serviceArtifactClass ->
             def serviceClass = serviceArtifactClass.getClazz()
             serviceClass.metaClass.invokeMethod = {String name, args ->
+
+                def SPRING_COUNTER = MonitoringProxy.getSpringCounter();
+                final boolean DISABLED = Boolean.parseBoolean(Parameters.getParameter(Parameter.DISABLED));
 
                 def metaMethod = delegate.metaClass.getMetaMethod(name, args)
 
