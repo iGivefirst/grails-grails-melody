@@ -49,10 +49,11 @@ Integrate Java Melody Monitor into grails application.
                 //load configuration from GrailsMelodyConfig.groovy
                 def conf = GrailsMelodyUtil.grailsMelodyConfig?.javamelody
                 conf?.each {
-                    String name = "javamelody.${it.key}"
+                    String name = it.key
+                    String globalName = "javamelody.${it.key}"
                     String value = it.value
                     println "Grails Melody Param: $name = $value"
-//                    System.setProperty(name, value)
+//                    System.setProperty(globalName, value)
                     'initParam' {
                         'param-name'(name)
                         'param-value'(value)
