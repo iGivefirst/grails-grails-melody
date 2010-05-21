@@ -7,7 +7,7 @@ import net.bull.javamelody.MonitoringProxy
 
 class GrailsMelodyGrailsPlugin {
     // the plugin version
-    def version = "0.2"
+    def version = "0.3"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "1.1.1 > *"
     // the other plugins this plugin depends on
@@ -130,33 +130,46 @@ Integrate Java Melody Monitor into grails application.
 
                 def metaMethod = delegate.metaClass.getMetaMethod(name, args)
 
-                if (metaMethod) {
+                if (!metaMethod) {
+                    List methods = delegate.metaClass.getMethods();
+                    boolean found = false
+                    for (int i = 0; i < methods.size(); i++) {
+                        groovy.lang.MetaMethod method = (groovy.lang.MetaMethod) methods.get(i);
+                        if (method.getName() == name) {
+                            metaMethod = method
+                            found = true
+                            break
+                        }
 
-                    if (DISABLED || !SPRING_COUNTER.isDisplayed()) {
-                        return metaMethod.doMethodInvoke(delegate, args)
                     }
-
-                    final long start = System.currentTimeMillis();
-                    final long startCpuTime = ThreadInformations.getCurrentThreadCpuTime();
-                    final String requestName = "${serviceClass.name}.${name}";
-
-                    boolean systemError = false;
-                    try {
-                        SPRING_COUNTER.bindContext(requestName, requestName, null, startCpuTime);
-                        return metaMethod.doMethodInvoke(delegate, args)
-                    } catch (final Error e) {
-                        systemError = true;
-                        throw e;
-                    } finally {
-                        final long duration = Math.max(System.currentTimeMillis() - start, 0);
-                        final long cpuUsedMillis = (ThreadInformations.getCurrentThreadCpuTime() - startCpuTime) / 1000000;
-
-                        SPRING_COUNTER.addRequest(requestName, duration, cpuUsedMillis, systemError, -1);
-                    }
-
-                } else {
-                    throw new MissingMethodException(name, delegate.class, args)
+                    if (!found)
+                        throw new MissingMethodException(name, delegate.class, args)
                 }
+
+
+
+                if (DISABLED || !SPRING_COUNTER.isDisplayed()) {
+                    return metaMethod.doMethodInvoke(delegate, args)
+                }
+
+                final long start = System.currentTimeMillis();
+                final long startCpuTime = ThreadInformations.getCurrentThreadCpuTime();
+                final String requestName = "${serviceClass.name}.${name}";
+
+                boolean systemError = false;
+                try {
+                    SPRING_COUNTER.bindContext(requestName, requestName, null, startCpuTime);
+                    return metaMethod.doMethodInvoke(delegate, args)
+                } catch (final Error e) {
+                    systemError = true;
+                    throw e;
+                } finally {
+                    final long duration = Math.max(System.currentTimeMillis() - start, 0);
+                    final long cpuUsedMillis = (ThreadInformations.getCurrentThreadCpuTime() - startCpuTime) / 1000000;
+
+                    SPRING_COUNTER.addRequest(requestName, duration, cpuUsedMillis, systemError, -1);
+                }
+
 
             }
         }
