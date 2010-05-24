@@ -1,9 +1,9 @@
 import net.bull.javamelody.MonitoringFilter
 import net.bull.javamelody.SessionListener
-import net.bull.javamelody.ThreadInformations
+import net.bull.javamelody.MonitoringProxy
+import net.bull.javamelody.Counter
 import net.bull.javamelody.Parameter
 import net.bull.javamelody.Parameters
-import net.bull.javamelody.MonitoringProxy
 
 class GrailsMelodyGrailsPlugin {
     // the plugin version
@@ -27,7 +27,6 @@ Integrate Java Melody Monitor into grails application.
     // URL to the plugin's documentation
     def documentation = "http://grails.org/GrailsMelody+Plugin"
 
-
     def doWithSpring = {
         //Wrap grails datasource with java melody JdbcWapper
         'grailsDataSourceBeanPostProcessor'(GrailsDataSourceBeanPostProcessor)
@@ -48,7 +47,7 @@ Integrate Java Melody Monitor into grails application.
                 'filter-class'(MonitoringFilter.name)
                 //load configuration from GrailsMelodyConfig.groovy
                 def conf = GrailsMelodyUtil.grailsMelodyConfig?.javamelody
-                conf?.each {
+				conf?.each {
                     String name = it.key
                     String value = it.value
                     log.debug "Grails Melody Param: $name = $value"
@@ -120,13 +119,12 @@ Integrate Java Melody Monitor into grails application.
         //For each service class in Grails, the plugin use groovy meta programming (invokeMethod)
         //to 'intercept' method call and collect infomation for monitoring purpose.
         //The code below mimics 'MonitoringSpringInterceptor.invoke()'
-        //TODO: Refactor the following codes to remove code duplication.
+        def SPRING_COUNTER = MonitoringProxy.getSpringCounter();
+		final boolean DISABLED = Boolean.parseBoolean(Parameters.getParameter(Parameter.DISABLED));
+
         application.serviceClasses.each {serviceArtifactClass ->
             def serviceClass = serviceArtifactClass.getClazz()
             serviceClass.metaClass.invokeMethod = {String name, args ->
-
-                def SPRING_COUNTER = MonitoringProxy.getSpringCounter();
-                final boolean DISABLED = Boolean.parseBoolean(Parameters.getParameter(Parameter.DISABLED));
 
                 def metaMethod = delegate.metaClass.getMetaMethod(name, args)
 
@@ -146,31 +144,22 @@ Integrate Java Melody Monitor into grails application.
                         throw new MissingMethodException(name, delegate.class, args)
                 }
 
-
-
                 if (DISABLED || !SPRING_COUNTER.isDisplayed()) {
                     return metaMethod.doMethodInvoke(delegate, args)
                 }
 
-                final long start = System.currentTimeMillis();
-                final long startCpuTime = ThreadInformations.getCurrentThreadCpuTime();
-                final String requestName = "${serviceClass.name}.${name}";
+				final String requestName = "${serviceClass.name}.${name}";
 
-                boolean systemError = false;
-                try {
-                    SPRING_COUNTER.bindContext(requestName, requestName, null, startCpuTime);
-                    return metaMethod.doMethodInvoke(delegate, args)
-                } catch (final Error e) {
-                    systemError = true;
-                    throw e;
-                } finally {
-                    final long duration = Math.max(System.currentTimeMillis() - start, 0);
-                    final long cpuUsedMillis = (ThreadInformations.getCurrentThreadCpuTime() - startCpuTime) / 1000000;
-
-                    SPRING_COUNTER.addRequest(requestName, duration, cpuUsedMillis, systemError, -1);
-                }
-
-
+				boolean systemError = false;
+				try {
+					SPRING_COUNTER.bindContextIncludingCpu(requestName);
+					return metaMethod.doMethodInvoke(delegate, args)
+				} catch (final Error e) {
+					systemError = true;
+					throw e;
+				} finally {
+					SPRING_COUNTER.addRequestForCurrentContext(systemError);
+				}
             }
         }
     }
