@@ -5,7 +5,7 @@
   <description>\
 Integrate Java Melody Monitor into grails application.
 </description>
-  <documentation>http://grails.org/GrailsMelody+Plugin</documentation>
+  <documentation>http://www.grails.org/plugin/grails-melody</documentation>
   <resources>
     <resource>DataSource</resource>
     <resource>UrlMappings</resource>
