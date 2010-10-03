@@ -1,4 +1,4 @@
-<plugin name='grails-melody' version='0.5' grailsVersion='1.1.1 &gt; *'>
+<plugin name='grails-melody' version='0.5' grailsVersion='1.2.4 &gt; *'>
   <author>Liu Chao</author>
   <authorEmail>liuchao@goal98.com</authorEmail>
   <title>Grails Java Melody Plugin</title>
@@ -10,5 +10,10 @@ Integrate Java Melody Monitor into grails application.
     <resource>DataSource</resource>
     <resource>UrlMappings</resource>
   </resources>
-  <dependencies />
+  <dependencies>
+    <resolvers>
+      <resolver type='grailsPlugins' name='grailsPlugins' />
+    </resolvers>
+  </dependencies>
+  <behavior />
 </plugin>
