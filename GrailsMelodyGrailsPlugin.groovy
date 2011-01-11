@@ -7,11 +7,12 @@ import net.bull.javamelody.Parameters
 
 class GrailsMelodyGrailsPlugin {
     // the plugin version
-    def version = "0.9"
+    def version = "1.0"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.4 > *"
     // the other plugins this plugin depends on
     def dependsOn = [:]
+    def loadAfter = ['spring-security-core', 'acegi']
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp"
@@ -124,10 +125,9 @@ Integrate Java Melody Monitor into grails application.
 
         application.serviceClasses.each {serviceArtifactClass ->
             def serviceClass = serviceArtifactClass.getClazz()
+
             serviceClass.metaClass.invokeMethod = {String name, args ->
-
                 def metaMethod = delegate.metaClass.getMetaMethod(name, args)
-
                 if (!metaMethod) {
                     List methods = delegate.metaClass.getMethods();
                     boolean found = false
@@ -140,8 +140,17 @@ Integrate Java Melody Monitor into grails application.
                         }
 
                     }
-                    if (!found)
-                        throw new MissingMethodException(name, delegate.class, args)
+					if(!found && delegate.metaClass.properties.find {it.name == name}){
+						def property = delegate."${name}"
+						if(property instanceof Closure){
+							found = true
+							metaMethod = [doMethodInvoke: {dlg, arguments-> property.call(arguments)}]
+						}
+					}
+                    if (!found){
+						return delegate.metaClass.invokeMissingMethod(delegate, name, args)
+/*						throw new MissingMethodException(name, delegate.class, args)*/
+					}
                 }
 
                 if (DISABLED || !SPRING_COUNTER.isDisplayed()) {
