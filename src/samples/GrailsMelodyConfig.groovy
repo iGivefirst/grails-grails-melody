@@ -1,6 +1,6 @@
 /*
 You can find all detailed parameter usage from
-http://code.google.com/p/javamelody/wiki/UserGuide#5._Optional_parameters
+http://code.google.com/p/javamelody/wiki/UserGuide#6._Optional_parameters
 Any parameter with 'javamelody.' prefix configured in this file will be add as init-param of java melody MonitoringFilter.
  */
 
