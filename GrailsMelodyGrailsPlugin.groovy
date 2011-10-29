@@ -115,13 +115,18 @@ Integrate Java Melody Monitor into grails application.
     }
 
     def doWithDynamicMethods = {ctx ->
-        //Enable groovy meta programming
-        ExpandoMetaClass.enableGlobally()
         //For each service class in Grails, the plugin use groovy meta programming (invokeMethod)
         //to 'intercept' method call and collect infomation for monitoring purpose.
         //The code below mimics 'MonitoringSpringInterceptor.invoke()'
         def SPRING_COUNTER = MonitoringProxy.getSpringCounter();
 		final boolean DISABLED = Boolean.parseBoolean(Parameters.getParameter(Parameter.DISABLED));
+
+        if (DISABLED || !SPRING_COUNTER.isDisplayed()) {
+			return
+		}
+		
+        //Enable groovy meta programming
+        ExpandoMetaClass.enableGlobally()
 
         application.serviceClasses.each {serviceArtifactClass ->
             def serviceClass = serviceArtifactClass.getClazz()
