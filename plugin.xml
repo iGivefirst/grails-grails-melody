@@ -1,4 +1,4 @@
-<plugin name='grails-melody' version='1.11' grailsVersion='1.2.4 &gt; *'>
+<plugin name='grails-melody' version='1.12' grailsVersion='1.2.4 &gt; *'>
   <author>Liu Chao</author>
   <authorEmail>liuchao@goal98.com</authorEmail>
   <title>Grails Java Melody Plugin</title>
@@ -17,13 +17,13 @@ Integrate Java Melody Monitor into grails application.
       <resolver type='mavenCentral' />
       <resolver type='mavenRepo' root='http://maven.glassfish.org/content/groups/public/' name='http://maven.glassfish.org/content/groups/public/' m2compatbile='true' />
     </resolvers>
-    <dependency group='net.bull.javamelody' name='javamelody-core' version='1.34.0' conf='compile' transitive='true' />
-    <dependency group='org.jrobin' name='jrobin' version='1.5.9' conf='compile' transitive='true' />
     <dependency group='com.lowagie' name='itext' version='2.1.7' conf='compile' transitive='true'>
       <excludes group='*' name='bcmail-jdk14' />
       <excludes group='*' name='bcprov-jdk14' />
       <excludes group='*' name='bctsp-jdk14' />
     </dependency>
+    <dependency group='org.jrobin' name='jrobin' version='1.5.9' conf='compile' transitive='true' />
+    <dependency group='net.bull.javamelody' name='javamelody-core' version='1.35.0' conf='compile' transitive='true' />
   </dependencies>
   <behavior />
 </plugin>
