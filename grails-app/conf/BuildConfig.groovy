@@ -12,7 +12,7 @@ grails.project.dependency.resolution = {
 	}
 	dependencies {
 		// change the javamelody version here to upgrade
-		compile "net.bull.javamelody:javamelody-core:1.34.0"
+		compile "net.bull.javamelody:javamelody-core:1.35.0"
 		compile ("com.lowagie:itext:2.1.7") {excludes "bcmail-jdk14", "bcprov-jdk14", "bctsp-jdk14"}
 		compile "org.jrobin:jrobin:1.5.9"
 	}
