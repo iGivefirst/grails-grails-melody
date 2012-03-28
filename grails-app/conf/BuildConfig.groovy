@@ -8,7 +8,6 @@ grails.project.dependency.resolution = {
 		grailsPlugins()
 		grailsHome()
 		mavenCentral()
-		mavenRepo "http://maven.glassfish.org/content/groups/public/" //repo for jrobin
 	}
 	dependencies {
 		// change the javamelody version here to upgrade
