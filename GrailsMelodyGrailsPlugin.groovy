@@ -12,7 +12,7 @@ class GrailsMelodyGrailsPlugin {
     def grailsVersion = "1.2.4 > *"
     // the other plugins this plugin depends on
     def dependsOn = [:]
-    def loadAfter = ['spring-security-core', 'acegi']
+    def loadAfter = ['spring-security-core', 'acegi', 'shiro']
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp"
