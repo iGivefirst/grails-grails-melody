@@ -7,7 +7,7 @@ import net.bull.javamelody.Parameters
 
 class GrailsMelodyGrailsPlugin {
     // the plugin version
-    def version = "1.13"
+    def version = "1.14-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2.4 > *"
     // the other plugins this plugin depends on
@@ -37,6 +37,11 @@ Integrate Java Melody Monitor into grails application.
     def doWithApplicationContext = {applicationContext ->
 
     }
+
+	def getWebXmlFilterOrder() {
+		def FilterManager = getClass().getClassLoader().loadClass('grails.plugin.webxml.FilterManager')
+		[ monitoring : FilterManager.GRAILS_WEB_REQUEST_POSITION + 200]
+	}
 
     def doWithWebDescriptor = {xml ->
 
