@@ -17,7 +17,11 @@ class GrailsMelodyGrailsPlugin {
     def pluginExcludes = [
             "grails-app/views/error.gsp",
             "test/**",
-            "src/docs/**"
+            "src/docs/**",
+            "web-app/css/**",
+            "web-app/images/**",
+            "web-app/js/**",
+            "grails-app/i18n/messages.properties"
     ]
 
     def author = "Liu Chao"
