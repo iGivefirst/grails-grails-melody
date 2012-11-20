@@ -15,8 +15,11 @@ Integrate Java Melody Monitor into grails application.
   </repositories>
   <dependencies>
     <compile>
-      <dependency group='org.jrobin' name='jrobin' version='1.5.9' />
+      <dependency group='commons-codec' name='commons-codec' version='1.5' />
       <dependency group='net.bull.javamelody' name='javamelody-core' version='1.41.0' />
+      <dependency group='org.jrobin' name='jrobin' version='1.5.9' />
+      <dependency group='commons-lang' name='commons-lang' version='2.6' />
+      <dependency group='commons-beanutils' name='commons-beanutils' version='1.8.3' />
       <dependency group='com.lowagie' name='itext' version='2.1.7' />
     </compile>
   </dependencies>
