@@ -34,11 +34,16 @@
 # older plugin install locations
 /plugins
 /web-app/plugins
-/web-app/WEB-INF/classes
 
 # "temporary" build files
 /target
 
 # other
 *.iws
+
+web-app
+
+*.swp
+
+/grails-app/i18n/messages.properties
 
